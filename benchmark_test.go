@@ -1,7 +1,9 @@
 package go_logger_benchmark
 
 import (
+	"flag"
 	"fmt"
+	"os"
 	"testing"
 	"time"
 
@@ -13,6 +15,10 @@ import (
 	"github.com/zerosnake0/go-logger-benchmark/pkg/method"
 	"github.com/zerosnake0/go-logger-benchmark/pkg/scenario"
 	"github.com/zerosnake0/go-logger-benchmark/pkg/writer"
+)
+
+var (
+	debug bool
 )
 
 // Test matrix
@@ -28,9 +34,11 @@ func BenchmarkTest(b *testing.B) {
 	})
 
 	w := writer.DefaultWriter
-	// w = writer.UniqueWriter(writer.DefaultWriter, func(line []byte) {
-	// 	b.Logf("%s", line)
-	// })
+	if debug {
+		w = writer.UniqueWriter(writer.DefaultWriter, func(line []byte) {
+			b.Logf("%s", line)
+		})
+	}
 
 	cfgs := map[string]*builder.Config{
 		"default": {
@@ -74,4 +82,10 @@ func BenchmarkTest(b *testing.B) {
 	}
 
 	fac.Run(b)
+}
+
+func TestMain(m *testing.M) {
+	flag.BoolVar(&debug, "debug", false, "debug")
+	flag.Parse()
+	os.Exit(m.Run())
 }
