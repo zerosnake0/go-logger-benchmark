@@ -28,6 +28,9 @@ func BenchmarkTest(b *testing.B) {
 	})
 
 	w := writer.DefaultWriter
+	// w = writer.UniqueWriter(writer.DefaultWriter, func(line []byte) {
+	// 	b.Logf("%s", line)
+	// })
 
 	cfgs := map[string]*builder.Config{
 		"default": {
