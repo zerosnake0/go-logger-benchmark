@@ -7,6 +7,8 @@ import (
 )
 
 type Scenario interface {
+	Skip(tester *tester.Tester) bool
+
 	Run(b *testing.B, tester *tester.Tester)
 
 	RunParallel(pb *testing.PB, tester *tester.Tester)

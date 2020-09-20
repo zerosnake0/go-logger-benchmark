@@ -5,8 +5,13 @@ import (
 )
 
 type Tester struct {
-	Print   func(args ...interface{})
-	Println func(args ...interface{})
+	Print   method.Print
+	Println method.Println
 	Printf  method.Printf
-	Output  func(depth int, msg string)
+	Output  method.Output
+
+	Debugf method.Debugf
+	Infof  method.Infof
+	Warnf  method.Warnf
+	Errorf method.Errorf
 }

@@ -4,8 +4,13 @@ import (
 	"github.com/rs/zerolog"
 
 	"github.com/zerosnake0/go-logger-benchmark/pkg/builder"
+	"github.com/zerosnake0/go-logger-benchmark/pkg/factory"
 	"github.com/zerosnake0/go-logger-benchmark/pkg/tester"
 )
+
+func init() {
+	factory.AddBuilder("zerolog", Builder())
+}
 
 type zerologBuilder struct {
 }
@@ -35,6 +40,18 @@ func logger(cfg *builder.Config) *zerolog.Logger {
 	if cfg.Time.Format != "" {
 		logger = logger.With().Timestamp().Logger()
 	}
+	switch cfg.Level {
+	case builder.LogLevelDebug:
+		logger = logger.Level(zerolog.DebugLevel)
+	case builder.LogLevelInfo:
+		logger = logger.Level(zerolog.InfoLevel)
+	case builder.LogLevelWarn:
+		logger = logger.Level(zerolog.WarnLevel)
+	case builder.LogLevelError:
+		logger = logger.Level(zerolog.ErrorLevel)
+	default:
+		panic("no log level")
+	}
 	return &logger
 }
 
@@ -43,6 +60,9 @@ func (b *zerologBuilder) Build(cfg *builder.Config) *tester.Tester {
 	return &tester.Tester{
 		Printf: func(fmt string, args ...interface{}) {
 			logger.Info().Msgf(fmt, args...)
+		},
+		Debugf: func(fmt string, args ...interface{}) {
+			logger.Debug().Msgf(fmt, args...)
 		},
 	}
 }

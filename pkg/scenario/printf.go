@@ -11,6 +11,10 @@ type PrintfScenario struct {
 	Func func(method method.Printf)
 }
 
+func (s *PrintfScenario) Skip(tester *tester.Tester) bool {
+	return tester.Printf == nil
+}
+
 func (s *PrintfScenario) Run(b *testing.B, tester *tester.Tester) {
 	f := s.Func
 	method := tester.Printf

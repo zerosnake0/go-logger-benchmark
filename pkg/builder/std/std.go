@@ -4,8 +4,13 @@ import (
 	"log"
 
 	"github.com/zerosnake0/go-logger-benchmark/pkg/builder"
+	"github.com/zerosnake0/go-logger-benchmark/pkg/factory"
 	"github.com/zerosnake0/go-logger-benchmark/pkg/tester"
 )
+
+func init() {
+	factory.AddBuilder("std", Builder())
+}
 
 type stdBuilder struct {
 }

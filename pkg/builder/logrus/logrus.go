@@ -4,8 +4,13 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/zerosnake0/go-logger-benchmark/pkg/builder"
+	"github.com/zerosnake0/go-logger-benchmark/pkg/factory"
 	"github.com/zerosnake0/go-logger-benchmark/pkg/tester"
 )
+
+func init() {
+	factory.AddBuilder("logrus", Builder())
+}
 
 type logrusBuilder struct {
 }
@@ -60,6 +65,18 @@ func logger(cfg *builder.Config) *logrus.Logger {
 		}
 		logger.SetFormatter(formatter)
 	}
+	switch cfg.Level {
+	case builder.LogLevelDebug:
+		logger.SetLevel(logrus.DebugLevel)
+	case builder.LogLevelInfo:
+		logger.SetLevel(logrus.InfoLevel)
+	case builder.LogLevelWarn:
+		logger.SetLevel(logrus.WarnLevel)
+	case builder.LogLevelError:
+		logger.SetLevel(logrus.ErrorLevel)
+	default:
+		panic("no log level")
+	}
 	return logger
 }
 
@@ -74,6 +91,9 @@ func (logrusBuilder) Build(cfg *builder.Config) *tester.Tester {
 		},
 		Printf: func(fmt string, args ...interface{}) {
 			logger.Printf(fmt, args...)
+		},
+		Debugf: func(fmt string, args ...interface{}) {
+			logger.Debugf(fmt, args...)
 		},
 	}
 }

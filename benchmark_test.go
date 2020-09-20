@@ -2,15 +2,14 @@ package go_logger_benchmark
 
 import (
 	"flag"
-	"fmt"
 	"os"
 	"testing"
 	"time"
 
 	"github.com/zerosnake0/go-logger-benchmark/pkg/builder"
-	"github.com/zerosnake0/go-logger-benchmark/pkg/builder/logrus"
-	"github.com/zerosnake0/go-logger-benchmark/pkg/builder/std"
-	"github.com/zerosnake0/go-logger-benchmark/pkg/builder/zerolog"
+	_ "github.com/zerosnake0/go-logger-benchmark/pkg/builder/logrus"
+	_ "github.com/zerosnake0/go-logger-benchmark/pkg/builder/std"
+	_ "github.com/zerosnake0/go-logger-benchmark/pkg/builder/zerolog"
 	"github.com/zerosnake0/go-logger-benchmark/pkg/factory"
 	"github.com/zerosnake0/go-logger-benchmark/pkg/method"
 	"github.com/zerosnake0/go-logger-benchmark/pkg/scenario"
@@ -26,12 +25,20 @@ var (
 // - Tester: How Logger is called
 // - Scenario: What arguments to be called with
 func BenchmarkTest(b *testing.B) {
-	fac := factory.NewFactory()
-	fac.AddScenario("printf", &scenario.PrintfScenario{
-		func(method method.Printf) {
-			method("hello %s %d %f", "a", 1234, 345.1)
+	for sname, scenario := range map[string]scenario.Scenario{
+		"printf": &scenario.PrintfScenario{
+			func(method method.Printf) {
+				method("hello %s %d %f", "a", 1234, 345.1)
+			},
 		},
-	})
+		"debugf": &scenario.DebugfScenario{
+			func(method method.Debugf) {
+				method("hello %s %d %f", "a", 1234, 345.1)
+			},
+		},
+	} {
+		factory.AddScenario(sname, scenario)
+	}
 
 	w := writer.DefaultWriter
 	if debug {
@@ -39,8 +46,7 @@ func BenchmarkTest(b *testing.B) {
 			b.Logf("%s", line)
 		})
 	}
-
-	cfgs := map[string]*builder.Config{
+	for name, cfg := range map[string]*builder.Config{
 		"default": {
 			Output: w,
 			Time: builder.TimeConfig{
@@ -50,6 +56,7 @@ func BenchmarkTest(b *testing.B) {
 				ShowTime: true,
 				UseUTC:   true,
 			},
+			Level: builder.LogLevelInfo,
 		},
 		"json": {
 			Output: w,
@@ -61,27 +68,12 @@ func BenchmarkTest(b *testing.B) {
 				ShowTime: true,
 				UseUTC:   true,
 			},
+			Level: builder.LogLevelInfo,
 		},
+	} {
+		factory.AddConfig(name, cfg)
 	}
-
-	builders := map[string]builder.Builder{
-		"std":     std.Builder(),
-		"logrus":  logrus.Builder(),
-		"zerolog": zerolog.Builder(),
-	}
-
-	for cname, cfg := range cfgs {
-		cfg.ApplyDefault()
-		for bname, builder := range builders {
-			name := fmt.Sprintf("%s/%s", cname, bname)
-			tester := builder.Build(cfg)
-			if tester != nil {
-				fac.AddTester(name, tester)
-			}
-		}
-	}
-
-	fac.Run(b)
+	factory.Run(b)
 }
 
 func TestMain(m *testing.M) {

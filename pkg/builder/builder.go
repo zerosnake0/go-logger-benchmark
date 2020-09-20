@@ -24,16 +24,30 @@ const (
 	LogFormatJson    LogFormat = "json"
 )
 
+type LogLevel string
+
+const (
+	LogLevelUnknown LogLevel = ""
+	LogLevelDebug   LogLevel = "debug"
+	LogLevelInfo    LogLevel = "info"
+	LogLevelWarn    LogLevel = "warn"
+	LogLevelError   LogLevel = "error"
+)
+
 type Config struct {
 	Output io.Writer
 	Time   TimeConfig
 	Format LogFormat
 	Color  bool
+	Level  LogLevel
 }
 
 func (cfg *Config) ApplyDefault() {
 	if cfg.Output == nil {
 		cfg.Output = writer.DefaultWriter
+	}
+	if cfg.Level == "" {
+		cfg.Level = LogLevelDebug
 	}
 }
 
