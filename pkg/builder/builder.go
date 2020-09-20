@@ -1,6 +1,8 @@
 package builder
 
 import (
+	"bytes"
+	"fmt"
 	"io"
 
 	"github.com/zerosnake0/go-logger-benchmark/pkg/tester"
@@ -46,9 +48,21 @@ func (cfg *Config) ApplyDefault() {
 	if cfg.Output == nil {
 		cfg.Output = writer.DefaultWriter
 	}
+	if cfg.Format == "" {
+		cfg.Format = LogFormatText
+	}
 	if cfg.Level == "" {
 		cfg.Level = LogLevelDebug
 	}
+}
+
+func (cfg *Config) String() string {
+	b := bytes.NewBuffer(nil)
+	fmt.Fprintf(b, "timeformat=%s ", cfg.Time.Format)
+	fmt.Fprintf(b, "color=%t ", cfg.Color)
+	fmt.Fprintf(b, "format=%s ", cfg.Format)
+	fmt.Fprintf(b, "level=%s ", cfg.Level)
+	return b.String()
 }
 
 type Builder interface {

@@ -55,6 +55,7 @@ type matrixFunc func(b *testing.B, s scenario.Scenario, t *tester.Tester)
 func (fac *Factory) matrix(b *testing.B, f matrixFunc) {
 	for cname, cfg := range fac.configs {
 		cfg.ApplyDefault()
+		b.Log(cfg)
 		b.Run(cname, func(b *testing.B) {
 			for sname, scenario := range fac.scenarios {
 				b.Run(sname, func(b *testing.B) {
